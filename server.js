@@ -1,10 +1,16 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+
+import { connectDB } from "./config/db.js";
+
 import uploadRoutes from "./routes/uploadRoutes.js";
+import propertiesRoutes from "./routes/propertiesRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 const app = express();
+connectDB();
 
 const corsOptions = {
   origin: "*",
@@ -21,6 +27,8 @@ app.get("/", (req, res) => {
   res.json("Proplinks backend version 1");
 });
 
+app.use("/properties", propertiesRoutes);
+app.use("/user", userRoutes);
 app.use("/upload", uploadRoutes);
 
 const PORT = process.env.PORT || 5000;
