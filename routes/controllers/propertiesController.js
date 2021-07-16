@@ -11,15 +11,26 @@ export const getAllProperties = async (req, res) => {
 
 export const getFilteredProps = async (req, res) => {
   const { pageNumber, keyword } = req.query;
+  // console.log(req.query);
   const pageSize = 10;
   const page = Number(pageNumber) || 1;
 
   const key = keyword
     ? {
-        purpose: {
-          $regex: keyword,
-          $options: "i",
-        },
+        $or: [
+          {
+            purpose: {
+              $regex: keyword,
+              $options: "i",
+            },
+          },
+          {
+            location: {
+              $regex: keyword,
+              $options: "i",
+            },
+          },
+        ],
       }
     : {};
 
@@ -47,7 +58,6 @@ export const addProperty = async (req, res) => {
     });
     res.status(201).json({ Success: "Property successfully created" });
   } catch (error) {
-    // console.log(error.message);
     res.status(500).json({ Fail: error.message });
   }
 };
