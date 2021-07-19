@@ -9,36 +9,86 @@ export const getAllProperties = async (req, res) => {
   }
 };
 
-export const getFilteredProps = async (req, res) => {
-  const { pageNumber, keyword } = req.query;
-  // console.log(req.query);
+export const postFilteredProps = async (req, res) => {
+  const {
+    pageNumber,
+    purpose,
+    locations,
+    propType,
+    budgetRange,
+    noOfBedrooms,
+  } = req.body;
+
+  // console.log("Body: ", req.body);
+
   const pageSize = 10;
   const page = Number(pageNumber) || 1;
 
-  const key = keyword
-    ? {
-        $or: [
+  var and = {};
+  if (purpose) {
+    and["purpose"] = {
+      $regex: purpose,
+      $options: "i",
+    };
+  }
+  if (locations.length > 0) {
+    and["location"] = {
+      $regex: locations[0],
+      $options: "i",
+    };
+  }
+  if (propType) {
+    and["propType"] = {
+      $regex: propType,
+      $options: "i",
+    };
+  }
+  if (noOfBedrooms) {
+    and["bedrooms"] = { $eq: noOfBedrooms };
+  }
+
+  // console.log("and: ", and);
+  let searchQuery = null;
+
+  if (budgetRange.length) {
+    if (purpose === "Rent") {
+      // console.log("Rent");
+      searchQuery = {
+        $and: [
           {
-            purpose: {
-              $regex: keyword,
-              $options: "i",
-            },
-          },
-          {
-            location: {
-              $regex: keyword,
-              $options: "i",
-            },
+            ...and,
+            "rentDetails.rent": { $gt: budgetRange[0] },
+            "rentDetails.rent": { $lt: budgetRange[1] },
           },
         ],
-      }
-    : {};
+      };
+    }
+    if (purpose === "Sale") {
+      // console.log("Sales");
+      searchQuery = {
+        $and: [
+          {
+            ...and,
+            "saleDetaails.expectedPrice": { $gt: budgetRange[0] },
+            "saleDetaails.expectedPrice": { $lt: budgetRange[1] },
+          },
+        ],
+      };
+    }
+  } else {
+    // console.log("Others");
+    searchQuery = { $and: [and] };
+  }
+
+  // console.log("Query: ", searchQuery);
 
   try {
-    const count = await Properties.countDocuments({ ...key });
-    const properties = await Properties.find({ ...key })
+    const count = await Properties.countDocuments({ ...searchQuery });
+    const properties = await Properties.find({ ...searchQuery })
       .limit(pageSize)
       .skip(pageSize * (page - 1));
+
+    // console.log("properties: ", properties, "\nCount: ", count);
 
     res
       .status(200)
