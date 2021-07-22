@@ -31,11 +31,14 @@ export const postFilteredProps = async (req, res) => {
       $options: "i",
     };
   }
-  if (locations.length > 0) {
-    and["location"] = {
-      $regex: locations[0],
-      $options: "i",
-    };
+
+  if (locations) {
+    if (locations.length > 0) {
+      and["location"] = {
+        $regex: locations[0],
+        $options: "i",
+      };
+    }
   }
   if (propType) {
     and["propType"] = {
@@ -50,30 +53,32 @@ export const postFilteredProps = async (req, res) => {
   // console.log("and: ", and);
   let searchQuery = null;
 
-  if (budgetRange.length) {
-    if (purpose === "Rent") {
-      // console.log("Rent");
-      searchQuery = {
-        $and: [
-          {
-            ...and,
-            "rentDetails.rent": { $gt: budgetRange[0] },
-            "rentDetails.rent": { $lt: budgetRange[1] },
-          },
-        ],
-      };
-    }
-    if (purpose === "Sale") {
-      // console.log("Sales");
-      searchQuery = {
-        $and: [
-          {
-            ...and,
-            "saleDetaails.expectedPrice": { $gt: budgetRange[0] },
-            "saleDetaails.expectedPrice": { $lt: budgetRange[1] },
-          },
-        ],
-      };
+  if (budgetRange) {
+    if (budgetRange.length) {
+      if (purpose === "Rent") {
+        // console.log("Rent");
+        searchQuery = {
+          $and: [
+            {
+              ...and,
+              "rentDetails.rent": { $gt: budgetRange[0] },
+              "rentDetails.rent": { $lt: budgetRange[1] },
+            },
+          ],
+        };
+      }
+      if (purpose === "Sale") {
+        // console.log("Sales");
+        searchQuery = {
+          $and: [
+            {
+              ...and,
+              "saleDetaails.expectedPrice": { $gt: budgetRange[0] },
+              "saleDetaails.expectedPrice": { $lt: budgetRange[1] },
+            },
+          ],
+        };
+      }
     }
   } else {
     // console.log("Others");
