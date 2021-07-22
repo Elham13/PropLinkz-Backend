@@ -1,17 +1,10 @@
 import express from "express";
 import multer from "multer";
 import multerS3 from "multer-s3";
-import path from "path";
 import aws from "aws-sdk";
 import { v4 as uuidv4 } from "uuid";
 
 const router = express.Router();
-
-// console.log(process.env.ACCESS_KEY_ID);
-const s3 = new aws.S3({
-  accessKeyId: process.env.ACCESS_KEY_ID,
-  secretAccessKey: process.env.SECRET_ACCESS_KEY,
-});
 
 const storage = multer.diskStorage({
   destination(req, file, cb) {
@@ -38,6 +31,17 @@ const upload = multer({
   },
 });
 
+// router.post("/single", upload.single("image"), (req, res) => {
+//   // console.log(req.file);
+//   const url = req.protocol + "://" + req.get("host");
+//   res.status(201).send(url + "/" + req.file.path);
+// });
+
+const s3 = new aws.S3({
+  accessKeyId: process.env.ACCESS_KEY_ID,
+  secretAccessKey: process.env.SECRET_ACCESS_KEY,
+});
+
 const uploadS3 = multer({
   storage: multerS3({
     s3: s3,
@@ -55,15 +59,9 @@ const uploadS3 = multer({
   }),
 });
 
-// router.post("/single", upload.single("image"), (req, res) => {
-//   // console.log(req.file);
-//   const url = req.protocol + "://" + req.get("host");
-//   res.status(201).send(url + "/" + req.file.path);
-// });
-
 router.post("/single", uploadS3.single("image"), (req, res) => {
   const fileName = req.file.location;
-  // console.log("Body: ", req.body);
+  console.log("ENV ", process.env.SECRET_ACCESS_KEY);
   // console.log("Files: ", req.file);
   res.status(201).send(fileName);
 });
