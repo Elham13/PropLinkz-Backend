@@ -24,7 +24,7 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use("/uploads", express.static("uploads"));
 
 app.get("/", (req, res) => {
-  res.json("Proplinks backend version 1");
+  res.json("Proplinks backend version 2");
 });
 
 app.use("/properties", propertiesRoutes);

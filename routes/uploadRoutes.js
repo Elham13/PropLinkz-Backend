@@ -61,7 +61,6 @@ const uploadS3 = multer({
 
 router.post("/single", uploadS3.single("image"), (req, res) => {
   const fileName = req.file.location;
-  console.log("ENV ", process.env.SECRET_ACCESS_KEY);
   // console.log("Files: ", req.file);
   res.status(201).send(fileName);
 });
