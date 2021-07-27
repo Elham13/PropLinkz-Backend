@@ -19,7 +19,7 @@ export const postFilteredProps = async (req, res) => {
     noOfBedrooms,
   } = req.body;
 
-  console.log("Body: ", req.body);
+  // console.log("Body: ", req.body);
 
   const pageSize = 10;
   const page = Number(pageNumber) || 1;
@@ -50,13 +50,13 @@ export const postFilteredProps = async (req, res) => {
     and["bedrooms"] = { $eq: noOfBedrooms };
   }
 
-  console.log("and: ", and);
+  // console.log("and: ", and);
   let searchQuery = null;
 
   if (budgetRange) {
     if (budgetRange.length) {
       if (purpose === "Rent") {
-        console.log("Rent");
+        // console.log("Rent");
         searchQuery = {
           $and: [
             {
@@ -68,7 +68,7 @@ export const postFilteredProps = async (req, res) => {
         };
       }
       if (purpose === "Sale") {
-        console.log("Sales");
+        // console.log("Sales");
         searchQuery = {
           $and: [
             {
@@ -80,12 +80,15 @@ export const postFilteredProps = async (req, res) => {
         };
       }
     } else {
-      console.log("Others");
+      // console.log("Others");
       searchQuery = { $and: [and] };
     }
+  } else {
+    // console.log("Others");
+    searchQuery = { $and: [and] };
   }
 
-  console.log("Query: ", searchQuery);
+  // console.log("Query: ", searchQuery);
 
   try {
     const count = await Properties.countDocuments({ ...searchQuery });
@@ -93,7 +96,7 @@ export const postFilteredProps = async (req, res) => {
       .limit(pageSize)
       .skip(pageSize * (page - 1));
 
-    console.log("properties: ", properties, "\nCount: ", count);
+    // console.log("properties: ", properties, "\nCount: ", count);
 
     res
       .status(200)
